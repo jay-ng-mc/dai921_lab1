@@ -13,22 +13,33 @@ def subscribe(pubsub, channel):
     print('Subscribed to ', channel)
 
 def get_messages(pubsub):
-    messages = pubsub.get_message()
+    messages = []
+    while True:
+        message = pubsub.get_message()
+        if not message: break
+        messages.append(message['data'])
     print(messages)
 
 def borrow_book(book_id):
     book = r.hgetall(book_id)
-    # if int(book['copies']) > 0:
-        
-    print('borrowed book')
+    if int(book['copies']) > 0:
+        r.hincrby(book_id, 'copies', -1)
+    else:
+        print('No available copies')
+    print('Borrowed book')
 
 def return_book(book_id):
     book = r.hgetall(book_id)
-    print('returned book')
+    if not book:
+        print('Book not from our library or has expired! (DEBUG): book_id not found')
+        return
+    r.hincrby(book_id, 'copies', 1)
+    print('Returned book')
 
 def inspect_book(book_id):
     book = r.hgetall(book_id)
-    print('inspected book')
+    print(book)
+    print('Inspected book')
 
 # publisher functions
 def add_book(book_id, props):
@@ -44,6 +55,3 @@ def add_book(book_id, props):
     for kw in kwlist:
         r.publish(kw, book_id)
     print('added book')
-
-def debug_publish(channel):
-    r.publish(channel, 'test message')
