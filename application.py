@@ -31,12 +31,14 @@ def get_messages(pubsub):
 
 def book_exists(book_id):
     book = r.hkeys(book_id)
-    print(book)
     if book: return True
     else: return False
 
 def borrow_book(book_id):
     book = r.hgetall(book_id)
+    if not book:
+        print('Book not found or expired!')
+        return
     book_copies = int(r.hget(book_id, 'copies'))
     if book_copies > 0:
         r.hincrby(book_id, 'copies', -1)
@@ -44,6 +46,8 @@ def borrow_book(book_id):
         print(book)
     else:
         print('No available copies')
+    
+    r.expire(book_id, 300)
 
 def return_book(book_id):
     book = r.hgetall(book_id)
@@ -55,8 +59,12 @@ def return_book(book_id):
 
 def inspect_book(book_id):
     book = r.hgetall(book_id)
-    print(book)
-    print('Inspected book')
+    if book:
+        print('Book details:')
+        print(book)
+        print('Expires in: ' + str(r.ttl(book_id)))
+    else:
+        print('Book not found or expired!')
 
 # publisher functions
 def add_book(book_id, props):
@@ -67,6 +75,7 @@ def add_book(book_id, props):
         r.hset(name=book_id, key="copies", value=copies)
     else:
         r.hset(name=book_id, mapping=props)
+    r.expire(book_id, 300)
 
     # publish to channels
     kwlist = [x.strip() for x in props['keywords'].split(',')]

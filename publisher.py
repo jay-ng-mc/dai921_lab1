@@ -17,7 +17,6 @@ while True:
     except:
         print("Book ISBN must be integer!")
         continue
-    print(book_exists(isbn))
     if not book_exists(isbn):
         print("Book Title: ")
         title = input()
