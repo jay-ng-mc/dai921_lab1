@@ -17,20 +17,22 @@ while True:
     except:
         print("Book ISBN must be integer!")
         continue
-    print("Book Title: ")
-    title = input()
-    print("Book Author: ")
-    author = input()
+    print(book_exists(isbn))
+    if not book_exists(isbn):
+        print("Book Title: ")
+        title = input()
+        print("Book Author: ")
+        author = input()
+        print("Keywords (as comma separated list): ")
+        keywords = input()
     print("Number of copies to add: ")
     copies = input()
-    print("Keywords (as comma separated list): ")
-    keywords = input()
 
     props = {
-        "title": title,
-        "author": author,
+        "title": title if title else None,
+        "author": author if author else None,
         "copies": copies,
-        "keywords": keywords
+        "keywords": keywords if keywords else None
     }
 
     add_book(isbn, props)
