@@ -43,6 +43,8 @@ def borrow_book(book_id):
     if book_copies > 0:
         r.hincrby(book_id, 'copies', -1)
         print('Borrowed book\nDetails: ')
+        print(book[b'copies'])
+        book[b'copies'] = int(book[b'copies']) - 1 # doesn't modify database, just display for user
         print(book)
     else:
         print('No available copies')
